@@ -40,16 +40,16 @@ val moonreaderProPatch =
                         }
 
                 // Patch Global.Init(ContextWrapper, ArrayList, int, String, String, String)
-                // This is the method that calls native license activation.
-                // We must first load the native PDF library, then set ms_init and
-                // return true to bypass all native license checks.  Without the
-                // explicit loadLibrary call the app crashes with UnsatisfiedLinkError
-                // when it tries to open a PDF (Document.open native method) because
-                // returning early here skips the original System.loadLibrary in the
-                // method body.
+                // Instead of returning early (which skips native engine init), we:
+                // 1. Load the native PDF library explicitly
+                // 2. Set ms_init = true so the app thinks it's initialized
+                // 3. Let the original method body execute to finish native setup
+                // 4. At the very end force ms_init = true again (overrides any
+                //    license-failure reset) and force the return value to true.
                 PDF_INIT_FULL.match(classDefBy(PDF_INIT_FULL.definingClass!!)).method.apply {
                     if (implementation == null) return@apply
 
+                    // Inject loadLibrary + ms_init at the start
                     addInstructions(
                             0,
                             """
@@ -57,9 +57,26 @@ val moonreaderProPatch =
                 invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
                 const/4 v0, 0x1
                 sput-boolean v0, Lcom/radaee/pdf/Global;->ms_init:Z
-                return v0
             """.trimIndent()
                     )
+
+                    // Force ms_init = true and return true at every return point
+                    // so even if the native license check fails we still win.
+                    val returnIndexes = instructions.mapIndexedNotNull { idx, inst ->
+                        if (inst.opcode.name.startsWith("return")) idx else null
+                    }.reversed()
+
+                    var offset = 0
+                    for (ret in returnIndexes) {
+                        addInstructions(
+                                ret + offset,
+                                """
+                    const/4 v0, 0x1
+                    sput-boolean v0, Lcom/radaee/pdf/Global;->ms_init:Z
+                """.trimIndent()
+                        )
+                        offset += 2
+                    }
                 }
 
                 // Set isProVersion and subscribeAdFree flags in LoadOptions
