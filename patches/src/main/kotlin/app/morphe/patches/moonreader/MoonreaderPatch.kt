@@ -40,15 +40,21 @@ val moonreaderProPatch =
                         }
 
                 // Patch Global.Init(ContextWrapper, ArrayList, int, String, String, String)
-                // This is the method that calls native license activation
+                // This is the method that calls native license activation.
+                // We must first load the native PDF library, then set ms_init and
+                // return true to bypass all native license checks.  Without the
+                // explicit loadLibrary call the app crashes with UnsatisfiedLinkError
+                // when it tries to open a PDF (Document.open native method) because
+                // returning early here skips the original System.loadLibrary in the
+                // method body.
                 PDF_INIT_FULL.match(classDefBy(PDF_INIT_FULL.definingClass!!)).method.apply {
                     if (implementation == null) return@apply
 
-                    // At the very beginning, set ms_init to true and return true
-                    // This bypasses all native license checks
                     addInstructions(
                             0,
                             """
+                const-string v0, "radaee"
+                invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
                 const/4 v0, 0x1
                 sput-boolean v0, Lcom/radaee/pdf/Global;->ms_init:Z
                 return v0
