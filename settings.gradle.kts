@@ -1,4 +1,4 @@
-rootProject.name = "binarymend-morphe-patches"
+rootProject.name = "niamwite-morphe-patches"
 
 pluginManagement {
     repositories {

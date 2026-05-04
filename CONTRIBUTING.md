@@ -1,11 +1,11 @@
 # Contribution Guidelines
 
-Thanks for contributing to Binarymend Patches.
+Thanks for contributing to Niamwite Patches.
 
 ## Before you start
 
-- Check existing [issues](https://github.com/binarymend/morphe-patches/issues) before opening a new report or feature request.
-- Use the repository issue templates for [bug reports](https://github.com/binarymend/morphe-patches/issues/new?labels=Bug+report&template=bug_report.yml&title=bug%3A+) and [feature requests](https://github.com/binarymend/morphe-patches/issues/new?labels=Feature+request&template=feature_request.yml&title=feat%3A+).
+- Check existing [issues](https://github.com/niamwite/morphe-patches/issues) before opening a new report or feature request.
+- Use the repository issue templates for [bug reports](https://github.com/niamwite/morphe-patches/issues/new?labels=Bug+report&template=bug_report.yml&title=bug%3A+) and [feature requests](https://github.com/niamwite/morphe-patches/issues/new?labels=Feature+request&template=feature_request.yml&title=feat%3A+).
 
 ## Development flow
 

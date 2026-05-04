@@ -1,13 +1,13 @@
-group = "app.binarymend"
+group = "app.niamwite"
 
 patches {
     about {
-        name = "Binarymend Patches"
-        description = "Custom Android patches maintained by Binarymend"
-        source = "https://github.com/binarymend/morphe-patches"
-        author = "binarymend"
-        contact = "https://github.com/binarymend/morphe-patches/issues"
-        website = "https://github.com/binarymend/morphe-patches"
+        name = "Niamwite Patches"
+        description = "Custom Android patches maintained by Niamwite"
+        source = "https://github.com/niamwite/morphe-patches"
+        author = "niamwite"
+        contact = "https://github.com/niamwite/morphe-patches/issues"
+        website = "https://github.com/niamwite/morphe-patches"
         license = "GPLv3"
     }
 }

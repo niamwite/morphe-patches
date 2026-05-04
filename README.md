@@ -1,12 +1,12 @@
-# Binarymend Patches
+# Niamwite Patches
 
-![License](https://img.shields.io/github/license/binarymend/morphe-patches)
-![Last Commit](https://img.shields.io/github/last-commit/binarymend/morphe-patches)
+![License](https://img.shields.io/github/license/niamwite/morphe-patches)
+![Last Commit](https://img.shields.io/github/last-commit/niamwite/morphe-patches)
 
-Custom Android patches for the **Morphe** framework, maintained by Binarymend.
+Custom Android patches for the **Morphe** framework, maintained by Niamwite.
 
 > [!IMPORTANT]
-> **Suggestions for new apps and patches are welcome in [GitHub Issues](https://github.com/binarymend/morphe-patches/issues).**
+> **Suggestions for new apps and patches are welcome in [GitHub Issues](https://github.com/niamwite/morphe-patches/issues).**
 >
 > However, please keep in mind that this is a hobby project maintained in my spare time — I have a job and a life outside of coding. I cannot fulfill every request or release patches on demand; doing so would quickly lead to burnout.
 >
@@ -19,7 +19,7 @@ Custom Android patches for the **Morphe** framework, maintained by Binarymend.
 3. Add this repository:
 
    ```text
-   https://github.com/binarymend/morphe-patches
+   https://github.com/niamwite/morphe-patches
    ```
 
 4. Enable **Use pre-release patches** only if you want preview builds from the `dev` channel.
@@ -38,7 +38,7 @@ Custom Android patches for the **Morphe** framework, maintained by Binarymend.
 
 ## Building from source
 
-1. Clone the repo: `git clone https://github.com/binarymend/morphe-patches.git`
+1. Clone the repo: `git clone https://github.com/niamwite/morphe-patches.git`
 2. Create `local.properties` with your Android SDK path.
 3. Add GitHub Packages credentials to `gradle.properties` or environment variables.
 4. Run `./gradlew clean build`.
