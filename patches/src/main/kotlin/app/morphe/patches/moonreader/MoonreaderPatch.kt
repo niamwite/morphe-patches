@@ -40,16 +40,34 @@ val moonreaderProPatch =
                             addInstructions(0, "const/4 v0, 0x1\nreturn v0")
                         }
 
-                // Patch Global.Init(ContextWrapper, ArrayList, int, String, String, String)
-                // Call Global.Init(Context) which loads the native library correctly,
-                // then set ms_init = true and return early to bypass license validation.
-                PDF_INIT_FULL.match(classDefBy(PDF_INIT_FULL.definingClass!!)).method.apply {
+                // Patch Global.Init(Context) to load native library and return true
+                // without calling Init(ContextWrapper,...) to avoid recursion.
+                PDF_INIT.match(classDefBy(PDF_INIT.definingClass!!)).method.apply {
                     if (implementation == null) return@apply
-
+                    removeInstructions(0, instructions.count())
                     addInstructions(
                             0,
                             """
-                invoke-static {p0}, Lcom/radaee/pdf/Global;->Init(Landroid/content/Context;)Z
+                const-string v0, "RadaeePDF"
+                invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+                const/4 v0, 0x1
+                sput-boolean v0, Lcom/radaee/pdf/Global;->ms_init:Z
+                return v0
+            """.trimIndent()
+                    )
+                }
+
+                // Patch Global.Init(ContextWrapper, ArrayList, int, String, String, String)
+                // to load native library, set ms_init = true, and return.
+                // Must NOT call Init(Context) to avoid infinite recursion.
+                PDF_INIT_FULL.match(classDefBy(PDF_INIT_FULL.definingClass!!)).method.apply {
+                    if (implementation == null) return@apply
+                    removeInstructions(0, instructions.count())
+                    addInstructions(
+                            0,
+                            """
+                const-string v0, "RadaeePDF"
+                invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
                 const/4 v0, 0x1
                 sput-boolean v0, Lcom/radaee/pdf/Global;->ms_init:Z
                 return v0
