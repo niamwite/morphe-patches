@@ -40,39 +40,39 @@ val moonreaderProPatch =
                             addInstructions(0, "const/4 v0, 0x1\nreturn v0")
                         }
 
-                // Patch Global.Init(Context) to load native library and return true
-                // without calling Init(ContextWrapper,...) to avoid recursion.
-                PDF_INIT.match(classDefBy(PDF_INIT.definingClass!!)).method.apply {
-                    if (implementation == null) return@apply
-                    removeInstructions(0, instructions.count())
-                    addInstructions(
-                            0,
-                            """
-                const-string v0, "RadaeePDF"
-                invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
-                const/4 v0, 0x1
-                sput-boolean v0, Lcom/radaee/pdf/Global;->ms_init:Z
-                return v0
-            """.trimIndent()
-                    )
-                }
-
                 // Patch Global.Init(ContextWrapper, ArrayList, int, String, String, String)
-                // to load native library, set ms_init = true, and return.
-                // Must NOT call Init(Context) to avoid infinite recursion.
+                // Do NOT replace the method body — the original code loads the native
+                // library with the correct name. Instead, set ms_init = true at the
+                // start, and force ms_init = true + return true before every return.
+                // This way the native library loads via the original System.loadLibrary
+                // call, and even if the license check fails, ms_init stays true.
                 PDF_INIT_FULL.match(classDefBy(PDF_INIT_FULL.definingClass!!)).method.apply {
                     if (implementation == null) return@apply
-                    removeInstructions(0, instructions.count())
+
                     addInstructions(
                             0,
                             """
-                const-string v0, "RadaeePDF"
-                invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
                 const/4 v0, 0x1
                 sput-boolean v0, Lcom/radaee/pdf/Global;->ms_init:Z
-                return v0
             """.trimIndent()
                     )
+
+                    val returnIndexes = instructions.mapIndexedNotNull { idx, inst ->
+                        if (inst.opcode.name.startsWith("return")) idx else null
+                    }.reversed()
+
+                    var offset = 0
+                    for (idx in returnIndexes) {
+                        addInstructions(
+                                idx + offset,
+                                """
+                    const/4 v0, 0x1
+                    sput-boolean v0, Lcom/radaee/pdf/Global;->ms_init:Z
+                    const/4 v0, 0x1
+                """.trimIndent()
+                        )
+                        offset += 3
+                    }
                 }
 
                 // Set isProVersion and subscribeAdFree flags in LoadOptions
