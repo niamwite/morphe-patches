@@ -1,4 +1,4 @@
-group = "app.niamwite"
+group = "app.morphe"
 
 patches {
     about {
