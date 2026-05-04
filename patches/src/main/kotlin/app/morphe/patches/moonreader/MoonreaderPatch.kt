@@ -7,6 +7,7 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patches.moonreader.Fingerprints.CAN_SHOW_ADS
 import app.morphe.patches.moonreader.Fingerprints.IS_PRO
 import app.morphe.patches.moonreader.Fingerprints.LOAD_OPTIONS
+import app.morphe.patches.moonreader.Fingerprints.PDF_INIT
 import app.morphe.patches.moonreader.Fingerprints.PDF_INIT_FULL
 import app.morphe.patches.moonreader.Fingerprints.PDF_IS_LICENSE_ACTIVATED
 import app.morphe.patches.moonreader.Fingerprints.SET_DASH_TITLE
@@ -40,16 +41,15 @@ val moonreaderProPatch =
                         }
 
                 // Patch Global.Init(ContextWrapper, ArrayList, int, String, String, String)
-                // Load the native PDF library, set ms_init = true, then return early
-                // to bypass native license validation which would fail on patched APK.
+                // Call Global.Init(Context) which loads the native library correctly,
+                // then set ms_init = true and return early to bypass license validation.
                 PDF_INIT_FULL.match(classDefBy(PDF_INIT_FULL.definingClass!!)).method.apply {
                     if (implementation == null) return@apply
 
                     addInstructions(
                             0,
                             """
-                const-string v0, "radaee"
-                invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+                invoke-static {p0}, Lcom/radaee/pdf/Global;->Init(Landroid/content/Context;)Z
                 const/4 v0, 0x1
                 sput-boolean v0, Lcom/radaee/pdf/Global;->ms_init:Z
                 return v0
